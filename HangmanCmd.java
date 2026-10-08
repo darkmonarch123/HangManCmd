@@ -1,21 +1,36 @@
-on:
-  push:
-    branches: [ "main" ]
+import java.util.Scanner;
 
-jobs:
-  deploy-and-test:
-    runs-on: ubuntu-latest
+public classs HangmanCMD {
+    public static void main(String[] args) {
+        String word = "KUBERNETES";
+        String hidden = "__________";
+        int tries = 6;
+        Scanner scanner = new Scanner(System.in);
 
-    steps:
-    # Step 1: Pull the code from your repository into the runner environment
-    - name: Checkout Code
-      uses: actions/checkout@v4
+        System.out.println("Welcome to Cloud Hangman!");
 
-    # Step 2: Spin up a miniature local Kubernetes cluster (Minikube) inside the GitHub server
-    - name: Start Local Kubernetes Cluster
-      uses: medyagh/setup-minikube@master
+        while (tries > 0 && hidden.contains("_")) {
+            System.out.println("\nWord: " + hidden);
+            System.out.println("Tries left: " + tries);
+            System.out.print("Guess a letter: ");
+            char guess = scanner.next().toUpperCase().charAt(0);
 
-    # Step 3: Securely generate the Kubernetes secret using the value hidden in GitHub Settings
-    - name: Create Kubernetes Secret
-      run: |
-        kubectl create secret generic db-vault --from-literal=password="${{ secrets.DB_PASSWORD }}"
+            if (word.indexOf(guess) >= 0) {
+                for (int i = 0; i < word.length(); i++) {
+                    if (word.charAt(i) == guess) {
+                        hidden = hidden.substring(0, i) + guess + hidden.substring(i + 1);
+                    }
+                }
+            } else {
+                tries--;
+                System.out.println("Wrong!");
+            }
+        }
+
+        if (hidden.equals(word)) {
+            System.out.println("\nCongratulations! You won! The word was: " + word);
+        } else {
+            System.out.println("\nGame Over! The word was: " + word);
+        }
+    }
+}
